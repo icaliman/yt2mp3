@@ -13,17 +13,19 @@ app.configure ->
   app.set 'port', process.env.PORT || 3000
   app.set 'views', "#{__dirname}/views"
   app.set 'view engine', 'jade'
+  app.use express.static(__dirname + '/public')
 
 server.listen app.get('port'), ->
   console.log "Express server listening on port #{app.get 'port'}"
 
 app.get '/', (req, res)     -> res.render 'index'
-app.get '/play', (req, res) -> 
+app.get '/search', (req, res)     -> res.render 'search'
+app.get '/play', (req, res) ->
   ytdl.getInfo req.query.url, (err, info) ->
     if err?
       success = false
     else
-      console.log info
+      #console.log "----", info
       success = true
       title = info.title
       thumb = info.thumbnail_url
@@ -60,5 +62,6 @@ convert_and_send = (pathToMovie, res) ->
     .withAudioCodec('libmp3lame')
     .toFormat('mp3')
     .saveToFile "#{pathToMovie}.mp3", (retcode, error) ->
-      unless err?
+      console.log "save file", retcode, error
+      unless error?
         res.sendfile("#{pathToMovie}.mp3")
